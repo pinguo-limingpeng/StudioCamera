@@ -12,11 +12,9 @@ import android.widget.Button;
 import com.lmp.camera.ui.CameraSurfaceView;
 import com.lmp.camera.ui.CameraSurfaceView.CameraOpenChangedListener;
 
-import mycamera.lmp.com.mycamera.R;
-
 public class CameraBGFragment extends Fragment implements View.OnClickListener {
 
-    private Button mPhotoStartBtn, mCameraButtonOpenOrClose;
+    private Button mPhotoStartBtn, mCameraSwitchButton, mScanSwitchButton;
     private CameraSurfaceView mCameraSurfaceview;
     private PictureCallback mPictureCallback;
 
@@ -34,21 +32,34 @@ public class CameraBGFragment extends Fragment implements View.OnClickListener {
         getActivity().getWindow().addFlags(
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);// 拍照过程屏幕一直处于高亮
         mPhotoStartBtn = (Button) view.findViewById(R.id.btn_camera_ok);
-        mCameraButtonOpenOrClose = (Button) view
+        mCameraSwitchButton = (Button) view
                 .findViewById(R.id.btn_camera_open_or_close);
         mCameraSurfaceview = (CameraSurfaceView) view
                 .findViewById(R.id.surface_camera_view);
+        mScanSwitchButton = (Button) view.findViewById(R.id.btn_scan_open_or_close);
+
+        mScanSwitchButton.setOnClickListener(this);
         mPhotoStartBtn.setOnClickListener(this);
-        mCameraButtonOpenOrClose.setOnClickListener(this);
+        mCameraSwitchButton.setOnClickListener(this);
         mCameraSurfaceview
-                .setOnCameraOpenChangedListener(new CameraOpenChangedListener() {
+                .setOnCameraOpenOrCloseChangedListener(new CameraOpenChangedListener() {
 
                     @Override
-                    public void onCameraOpenChanged(boolean isOpen) {
+                    public void onOpenOrCloseScanChanged(boolean isOpen) {
                         if (isOpen) {
-                            mCameraButtonOpenOrClose.setText(R.string.btn_close_text);
+                            mScanSwitchButton.setText(R.string.btn_close_scan_text);
                         } else {
-                            mCameraButtonOpenOrClose
+                            mScanSwitchButton
+                                    .setText(R.string.btn_open_scan_text);
+                        }
+                    }
+
+                    @Override
+                    public void onOpenOrCloseCameraChanged(boolean isOpen) {
+                        if (isOpen) {
+                            mCameraSwitchButton.setText(R.string.btn_close_text);
+                        } else {
+                            mCameraSwitchButton
                                     .setText(R.string.btn_open_text);
                         }
                     }
@@ -64,8 +75,10 @@ public class CameraBGFragment extends Fragment implements View.OnClickListener {
     public void onClick(View v) {
         if (v == mPhotoStartBtn) {
             mCameraSurfaceview.takePicture();
-        } else if (v == mCameraButtonOpenOrClose) {
-            mCameraSurfaceview.changeCamera();
+        } else if (v == mCameraSwitchButton) {
+            mCameraSurfaceview.openOrCloseCamera();
+        } else if (v == mScanSwitchButton) {
+            mCameraSurfaceview.openOrCloseScan();
         }
     }
 }

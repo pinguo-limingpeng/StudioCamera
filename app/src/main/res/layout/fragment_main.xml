@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     tools:context="com.camera360.camera.MainActivity$PlaceholderFragment" >
 
-    <com.camera360.camera.ui.CameraSurfaceView
+    <com.lmp.camera.ui.CameraSurfaceView
         android:id="@+id/surface_camera_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
@@ -21,7 +21,12 @@
         android:id="@+id/btn_camera_open_or_close"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
         android:text="@string/btn_close_text" />
 
+    <Button
+        android:id="@+id/btn_scan_open_or_close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:text="@string/btn_close_scan_text" />
 </RelativeLayout>

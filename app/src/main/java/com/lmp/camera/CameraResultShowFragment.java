@@ -9,8 +9,6 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import mycamera.lmp.com.mycamera.R;
-
 public class CameraResultShowFragment extends Fragment implements
         OnClickListener {
 

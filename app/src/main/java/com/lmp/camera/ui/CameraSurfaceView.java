@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.hardware.Camera.AutoFocusCallback;
@@ -21,7 +22,8 @@ public class CameraSurfaceView extends SurfaceView implements
         SurfaceHolder.Callback, AutoFocusCallback {// 自动对焦接口
 
     public interface CameraOpenChangedListener {
-        public void onCameraOpenChanged(boolean isOpen);
+        public void onOpenOrCloseScanChanged(boolean isOpen);
+        public void onOpenOrCloseCameraChanged(boolean isOpen);
     }
 
     private SurfaceHolder mHolder;
@@ -30,6 +32,7 @@ public class CameraSurfaceView extends SurfaceView implements
     private int mWidth, mHeight;
     private PictureCallback mPictureCallback;
     private boolean isOpen = true;
+    private boolean isScan = true;
     private CameraOpenChangedListener mOpenChangedListener;
 
     public CameraSurfaceView(Context context) {
@@ -59,16 +62,9 @@ public class CameraSurfaceView extends SurfaceView implements
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         if (mCamera == null) {
-            mCamera = Camera.open();
+            startCamera();
         }
-        try {
-            mCamera.setDisplayOrientation(90);
-            mCamera.setPreviewDisplay(mHolder);// 通过surfaceview显示取景画面
-            mCamera.startPreview();// 开始预览
-        } catch (Exception e) {
-            mCamera.release();
-            mCamera = null;
-        }
+        openScan();
     }
 
     // 在surface的大小发生改变时激发
@@ -80,9 +76,8 @@ public class CameraSurfaceView extends SurfaceView implements
     // 销毁时激发，一般在这里将画图的线程停止、释放。
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-        mCamera.stopPreview();
-        mCamera.release();
-        mCamera = null;
+        closeScan();
+        closeCamera();
     }
 
     /**
@@ -144,7 +139,7 @@ public class CameraSurfaceView extends SurfaceView implements
         }
     }
 
-    public void setOnCameraOpenChangedListener(
+    public void setOnCameraOpenOrCloseChangedListener(
             CameraOpenChangedListener listener) {
         mOpenChangedListener = listener;
     }
@@ -153,26 +148,69 @@ public class CameraSurfaceView extends SurfaceView implements
      * 打开照相机
      */
     public void startCamera() {
-        if (isOpen) {
-            return;
-        }
-        surfaceCreated(mHolder);
+        mCamera = Camera.open();
+        openScan();
         isOpen = true;
     }
 
-    public void stopCamera() {
-        surfaceDestroyed(mHolder);
+    /**
+     * 关闭照相机
+     */
+    public void closeCamera() {
+        closeScan();
+        mCamera.release();
+        mCamera = null;
         isOpen = false;
     }
 
-    public void changeCamera() {
-        if (isOpen) {
-            stopCamera();
+    /**
+     * 开启预览
+     */
+    public void openScan() {
+        if (mCamera != null) {
+            try {
+                mCamera.setDisplayOrientation(90);
+                mCamera.setPreviewDisplay(mHolder);// 通过surfaceview显示取景画面
+                mCamera.startPreview();// 开始预览
+            } catch (Exception e) {
+                mCamera.release();
+                mCamera = null;
+            }
+            isScan = true;
+        }
+    }
+
+    /**
+     * 关闭预览
+     */
+    public void closeScan() {
+        if (mCamera != null) {
+            mCamera.stopPreview();
+            isScan = false;
+        }
+    }
+
+    public void openOrCloseScan() {
+        if (isScan) {
+            closeScan();
         } else {
+            openScan();
+        }
+        if (mOpenChangedListener != null) {
+            mOpenChangedListener.onOpenOrCloseScanChanged(isScan);
+        }
+    }
+
+    public void openOrCloseCamera() {
+        if (isOpen) {
+            closeCamera();
+            setBackgroundColor(Color.BLACK);
+        } else {
+            setBackground(null);
             startCamera();
         }
         if (mOpenChangedListener != null) {
-            mOpenChangedListener.onCameraOpenChanged(isOpen);
+            mOpenChangedListener.onOpenOrCloseCameraChanged(isOpen);
         }
     }
 

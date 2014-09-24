@@ -7,5 +7,6 @@
     <string name="btn_ok_text">拍照</string>
     <string name="btn_open_text">打开照相机</string>
     <string name="btn_close_text">关闭照相机</string>
-
+    <string name="btn_open_scan_text">打开预览</string>
+    <string name="btn_close_scan_text">关闭预览</string>
 </resources>

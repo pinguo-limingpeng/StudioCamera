@@ -7,8 +7,6 @@ import android.hardware.Camera;
 import android.hardware.Camera.PictureCallback;
 import android.os.Bundle;
 
-import mycamera.lmp.com.mycamera.R;
-
 
 public class MainActivity extends Activity {
 
