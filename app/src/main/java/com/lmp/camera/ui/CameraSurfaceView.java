@@ -23,6 +23,7 @@ public class CameraSurfaceView extends SurfaceView implements
 
     public interface CameraOpenChangedListener {
         public void onOpenOrCloseScanChanged(boolean isOpen);
+
         public void onOpenOrCloseCameraChanged(boolean isOpen);
     }
 
@@ -127,9 +128,10 @@ public class CameraSurfaceView extends SurfaceView implements
         mPictureCallback = callback;
     }
 
+    //自动聚焦
     @Override
     public void onAutoFocus(boolean success, Camera camera) {
-        if (success) {
+        if (success) {//聚焦成功
             Camera.Parameters parameters = mCamera.getParameters();
             parameters.setPictureFormat(PixelFormat.JPEG);// 设置照片的输出格式
             parameters.setPictureSize(mWidth, mHeight); // 设置大小
@@ -158,8 +160,10 @@ public class CameraSurfaceView extends SurfaceView implements
      */
     public void closeCamera() {
         closeScan();
-        mCamera.release();
-        mCamera = null;
+        if (mCamera != null) {
+            mCamera.release();
+            mCamera = null;
+        }
         isOpen = false;
     }
 
@@ -211,6 +215,65 @@ public class CameraSurfaceView extends SurfaceView implements
         }
         if (mOpenChangedListener != null) {
             mOpenChangedListener.onOpenOrCloseCameraChanged(isOpen);
+        }
+    }
+
+    /**
+     * 是否支持变焦
+     */
+    public boolean isSupportZoom() {
+        if (mCamera == null) {
+            mCamera = Camera.open();
+        }
+        return mCamera.getParameters().isSmoothZoomSupported();
+    }
+
+    /**
+     * 设置变焦
+     */
+    public void setZoom(int zoom) {
+        if (!isSupportZoom()) {
+            return;
+        }
+        try {
+            Camera.Parameters params = mCamera.getParameters();
+            final int MAX = params.getMaxZoom();
+            if (MAX == 0) return;
+
+            if (zoom > MAX) {
+                zoom = MAX;
+            }
+            params.setZoom(zoom);
+            mCamera.setParameters(params);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 获取最大变焦值
+     */
+    public int getMaxZoom() {
+        if (!isSupportZoom()) {
+            return -1;
+        }
+        if (mCamera == null) {
+            mCamera = Camera.open();
+        }
+        Camera.Parameters params = mCamera.getParameters();
+        return params.getMaxZoom();
+    }
+
+    public void setAutoFocus() {
+        if (mCamera != null) {
+            mCamera.autoFocus(new AutoFocusCallback() {
+                @Override
+                public void onAutoFocus(boolean b, Camera camera) {
+                    if (b) {
+                        mCamera.setOneShotPreviewCallback(null);
+                    }
+                }
+            });
         }
     }
 

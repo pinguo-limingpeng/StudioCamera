@@ -22,21 +22,27 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         mManager = getFragmentManager();
 
-        mBgFragment = new CameraBGFragment();
-        mBgFragment.setPictureCallback(new PictureCallback() {
+        mBgFragment = (CameraBGFragment) mManager.findFragmentByTag("mBgFragment");
+        if (mBgFragment == null) {
+            mBgFragment = new CameraBGFragment();
+            mBgFragment.setPictureCallback(new PictureCallback() {
 
-            @Override
-            public void onPictureTaken(byte[] data, Camera camera) {
-                mTransaction = mManager.beginTransaction();
-                mShowFragment = new CameraResultShowFragment();
-                Bundle bundle = new Bundle();
-                bundle.putByteArray(CAMERA_RESULE_PHOTO, data);
-                mShowFragment.setArguments(bundle);
-                mTransaction.replace(R.id.container, mShowFragment).commit();
-            }
-        });
+                @Override
+                public void onPictureTaken(byte[] data, Camera camera) {
+                    mTransaction = mManager.beginTransaction();
+                    mShowFragment = new CameraResultShowFragment();
+                    Bundle bundle = new Bundle();
+                    bundle.putByteArray(CAMERA_RESULE_PHOTO, data);
+                    mShowFragment.setArguments(bundle);
+                    mTransaction.replace(R.id.container, mShowFragment, "mShowFragment");
+                    mTransaction.addToBackStack(null);
+                    mTransaction.commit();
+                }
+            });
+        }
 
         mTransaction = mManager.beginTransaction();
-        mTransaction.add(R.id.container, mBgFragment, "mBgFragment").commit();
+        mTransaction.add(R.id.container, mBgFragment, "mBgFragment");
+        mTransaction.commit();
     }
 }

@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.camera360.camera.MainActivity$PlaceholderFragment" >
+    tools:context="com.camera360.camera.MainActivity$PlaceholderFragment">
 
     <com.lmp.camera.ui.CameraSurfaceView
         android:id="@+id/surface_camera_view"
@@ -13,6 +13,7 @@
         android:id="@+id/btn_camera_ok"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="@drawable/photo"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:text="@string/btn_ok_text" />
@@ -29,4 +30,17 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:text="@string/btn_close_scan_text" />
+
+    <SeekBar
+        android:id="@+id/camera_seekbar"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="60dp"
+        android:minHeight="5dp"
+        android:maxHeight="5dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:progressDrawable="@drawable/po_seekbar"
+        android:thumb="@drawable/seekbar_thumb" />
 </RelativeLayout>
