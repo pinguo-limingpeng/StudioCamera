@@ -1,6 +1,7 @@
 package com.lmp.camera;
 
 import android.app.Fragment;
+import android.hardware.Camera;
 import android.hardware.Camera.PictureCallback;
 import android.os.Bundle;
 import android.os.Handler;
@@ -11,14 +12,21 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.SeekBar;
+import android.widget.Spinner;
 
 import com.lmp.camera.ui.CameraSurfaceView;
 import com.lmp.camera.ui.CameraSurfaceView.CameraOpenChangedListener;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class CameraBGFragment extends Fragment implements View.OnClickListener {
 
+    private final static String PICTURESIZE_SPILT = "×";
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -33,6 +41,7 @@ public class CameraBGFragment extends Fragment implements View.OnClickListener {
     private PictureCallback mPictureCallback;
     private SeekBar mCameraZoomBar;
     private boolean isSmooth;
+    private Spinner mPictureSize;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -53,6 +62,22 @@ public class CameraBGFragment extends Fragment implements View.OnClickListener {
         mCameraSurfaceview = (CameraSurfaceView) view.findViewById(R.id.surface_camera_view);
         mScanSwitchButton = (Button) view.findViewById(R.id.btn_scan_open_or_close);
         mCameraZoomBar = (SeekBar) view.findViewById(R.id.camera_seekbar);
+        mPictureSize = (Spinner) view.findViewById(R.id.camera_picture_size);
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
+                android.R.layout.simple_spinner_dropdown_item, getSize());
+        mPictureSize.setAdapter(adapter);
+        mPictureSize.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                String[] size = ((String) adapterView.getAdapter().getItem(i)).split(PICTURESIZE_SPILT);
+                mCameraSurfaceview.setPictureSize(Integer.parseInt(size[0]), Integer.parseInt(size[1]));
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+            }
+        });
 
         int max = mCameraSurfaceview.getMaxZoom();
         if (max > 0) {
@@ -127,6 +152,15 @@ public class CameraBGFragment extends Fragment implements View.OnClickListener {
                 return false;//返回false，则表示长按世界为执行完，将交给onclick事件进行处理
             }
         });
+    }
+
+    private List<String> getSize() {
+        List<String> size = new ArrayList<String>();
+        List<Camera.Size> pictureSize = mCameraSurfaceview.getsupportedPictureSizes();
+        for (Camera.Size s : pictureSize) {
+            size.add(s.width + PICTURESIZE_SPILT + s.height);
+        }
+        return size;
     }
 
     public void setPictureCallback(PictureCallback callback) {

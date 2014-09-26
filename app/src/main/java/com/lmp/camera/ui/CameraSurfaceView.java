@@ -17,6 +17,7 @@ import android.view.SurfaceView;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.List;
 
 public class CameraSurfaceView extends SurfaceView implements
         SurfaceHolder.Callback, AutoFocusCallback {// 自动对焦接口
@@ -66,6 +67,11 @@ public class CameraSurfaceView extends SurfaceView implements
             startCamera();
         }
         openScan();
+        Camera.Parameters parameters = mCamera.getParameters();
+        parameters.setPictureFormat(PixelFormat.JPEG);// 设置照片的输出格式
+        parameters.setPictureSize(mWidth, mHeight); // 设置大小
+        parameters.set("rotation", 90);
+        mCamera.setParameters(parameters);
     }
 
     // 在surface的大小发生改变时激发
@@ -105,9 +111,14 @@ public class CameraSurfaceView extends SurfaceView implements
                     }
                     mBitmap = BitmapFactory.decodeByteArray(data, 0,
                             data.length);
-                    File file = new File(Environment
-                            .getExternalStorageDirectory().getPath(),
-                            "/camera/camera00001");
+
+                    File sdCard = Environment.getExternalStorageDirectory();
+                    File dir = new File(sdCard.getAbsolutePath() + "/camera");
+                    if (!dir.exists()) {
+                        dir.mkdirs();
+                    }
+                    String fileName = String.format("%d.jpg", System.currentTimeMillis());
+                    File file = new File(dir, fileName);
                     BufferedOutputStream bos = new BufferedOutputStream(
                             new FileOutputStream(file));
                     mBitmap.compress(Bitmap.CompressFormat.JPEG, 80, bos);
@@ -132,11 +143,6 @@ public class CameraSurfaceView extends SurfaceView implements
     @Override
     public void onAutoFocus(boolean success, Camera camera) {
         if (success) {//聚焦成功
-            Camera.Parameters parameters = mCamera.getParameters();
-            parameters.setPictureFormat(PixelFormat.JPEG);// 设置照片的输出格式
-            parameters.setPictureSize(mWidth, mHeight); // 设置大小
-            parameters.set("rotation", 90);
-            mCamera.setParameters(parameters);
             mCamera.takePicture(null, null, mPictureCallback);
         }
     }
@@ -274,6 +280,44 @@ public class CameraSurfaceView extends SurfaceView implements
                     }
                 }
             });
+        }
+    }
+
+    /**
+     * 获取摄像头支持的各种分辨率
+     */
+    public List<Camera.Size> getsupportedPictureSizes() {
+        if (mCamera == null) {
+            mCamera = Camera.open();
+        }
+        Camera.Parameters params = mCamera.getParameters();
+        return params.getSupportedPictureSizes();
+    }
+
+    /**
+     * 获取预览的各种分辨率
+     */
+    public List<Camera.Size> getSupportedPreviewSizes() {
+        if (mCamera == null) {
+            mCamera = Camera.open();
+        }
+        Camera.Parameters params = mCamera.getParameters();
+        return params.getSupportedPreviewSizes();
+    }
+
+    /**
+     * 设置照片分辨率
+     */
+    public void setPictureSize(int width, int height) {
+        if (mCamera != null) {
+            Camera.Parameters params = mCamera.getParameters();
+            params.setPictureSize(width, height);
+            for (Camera.Size size : getSupportedPreviewSizes()) {
+                if (size.width == width && size.height == height) {
+                    params.setPreviewSize(width, height);
+                }
+            }
+            mCamera.setParameters(params);
         }
     }
 

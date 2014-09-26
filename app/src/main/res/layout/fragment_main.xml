@@ -13,10 +13,10 @@
         android:id="@+id/btn_camera_ok"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/photo"
+        android:background="@drawable/shut"
+        android:layout_marginBottom="5dp"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:text="@string/btn_ok_text" />
+        android:layout_centerHorizontal="true" />
 
     <Button
         android:id="@+id/btn_camera_open_or_close"
@@ -31,12 +31,20 @@
         android:layout_alignParentRight="true"
         android:text="@string/btn_close_scan_text" />
 
+    <Spinner
+        android:id="@+id/camera_picture_size"
+        android:layout_toLeftOf="@+id/btn_scan_open_or_close"
+        android:layout_toRightOf="@+id/btn_camera_open_or_close"
+        android:layout_alignBottom="@+id/btn_scan_open_or_close"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
     <SeekBar
         android:id="@+id/camera_seekbar"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="60dp"
+        android:layout_above="@+id/btn_camera_ok"
+        android:layout_marginBottom="5dp"
         android:minHeight="5dp"
         android:maxHeight="5dp"
         android:layout_marginLeft="20dp"
