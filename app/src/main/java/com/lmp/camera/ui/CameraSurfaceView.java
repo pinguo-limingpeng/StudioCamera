@@ -3,7 +3,6 @@ package com.lmp.camera.ui;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
@@ -14,9 +13,9 @@ import android.util.AttributeSet;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.List;
 
 public class CameraSurfaceView extends SurfaceView implements
@@ -104,6 +103,7 @@ public class CameraSurfaceView extends SurfaceView implements
         mPictureCallback = new PictureCallback() {
 
             public void onPictureTaken(byte[] data, Camera camera) {
+                FileOutputStream out = null;
                 try {
                     if (!Environment.getExternalStorageState().equals(
                             Environment.MEDIA_MOUNTED)) {
@@ -112,23 +112,22 @@ public class CameraSurfaceView extends SurfaceView implements
                     mBitmap = BitmapFactory.decodeByteArray(data, 0,
                             data.length);
 
-                    File sdCard = Environment.getExternalStorageDirectory();
-                    File dir = new File(sdCard.getAbsolutePath() + "/camera");
-                    if (!dir.exists()) {
-                        dir.mkdirs();
-                    }
                     String fileName = String.format("%d.jpg", System.currentTimeMillis());
-                    File file = new File(dir, fileName);
-                    BufferedOutputStream bos = new BufferedOutputStream(
-                            new FileOutputStream(file));
-                    mBitmap.compress(Bitmap.CompressFormat.JPEG, 80, bos);
-                    bos.flush();
-                    bos.close();
-                    Canvas canvas = mHolder.lockCanvas();
-                    canvas.drawBitmap(mBitmap, 0, 0, null);
-                    mHolder.unlockCanvasAndPost(canvas);
+                    File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), fileName);
+                    out = new FileOutputStream(file);
+                    mBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+                    out.flush();
+                    out.close();
                 } catch (Exception e) {
                     e.printStackTrace();
+                } finally {
+                    if (out != null) {
+                        try {
+                            out.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
             }
         };
